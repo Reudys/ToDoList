@@ -18,5 +18,14 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+    background-color: #fab023;
+}
+
+.card {
+    background-color: #feebbb;
+}
+
+.btn-edit {
+    background-color: #fbc356;
 }

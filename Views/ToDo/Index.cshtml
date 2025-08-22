@@ -11,8 +11,26 @@
                 <h3>@item.Title</h3>
                 <p>@item.Description</p>
                 <span>Status: @(item.IsCompleted ? "Completed" : "Pending")</span>
-                <a asp-action="Edit" asp-route-id="@item.Id">Editar</a>
-                <a asp-action="Delete" asp-route-id="@item.Id">Eliminar</a>
+                    <hr />
+                <div class="d-flex justify-content-between">
+                    <div class="w-25">
+                        @if(item.IsCompleted)
+                        {
+                            <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id">Eliminar</a>
+                        }
+                    </div>
+                    <div>
+                        <a class="btn btn-edit" asp-action="Edit" asp-route-id="@item.Id">Editar</a>
+                        @if (!item.IsCompleted)
+                        {
+                            <a class="btn btn-success" asp-action="Completed" asp-route-id="@item.Id">Terminada</a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-success" asp-action="Completed" asp-route-id="@item.Id">No Terminada</a>
+                        }
+                    </div>
+                </div>
             </div>
         </div>
 }

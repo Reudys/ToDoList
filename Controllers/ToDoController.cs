@@ -73,5 +73,15 @@ namespace ToDoList.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpGet]
+        public IActionResult Completed(int id)
+        {
+            var todos = _context.ToDos.Find(id);
+            if (todos == null) return NotFound();
+            if (!todos.IsCompleted) todos.IsCompleted = true;
+            else todos.IsCompleted = false;
+                _context.SaveChanges();
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
