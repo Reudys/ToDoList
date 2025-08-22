@@ -20,7 +20,7 @@
                         }
                     </div>
                     <div>
-                        <a class="btn btn-edit" asp-action="Edit" asp-route-id="@item.Id">Editar</a>
+                        <a class="btn btn-edit text-light" asp-action="Edit" asp-route-id="@item.Id">Editar</a>
                         @if (!item.IsCompleted)
                         {
                             <a class="btn btn-success" asp-action="Completed" asp-route-id="@item.Id">Terminada</a>
