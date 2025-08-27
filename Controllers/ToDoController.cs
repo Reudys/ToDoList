@@ -2,12 +2,14 @@
 using Microsoft.EntityFrameworkCore;
 using System.Numerics;
 using ToDoList.Models;
+using ToDoList.ViewModel;
 
 namespace ToDoList.Controllers
 {
     public class ToDoController : Controller
     {
         private readonly DataContext _context;
+        public ToDoViewData dt = new ToDoViewData();
 
         public ToDoController(DataContext context)
         {
@@ -17,22 +19,30 @@ namespace ToDoList.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            var todos = _context.ToDos.ToList();
-            return View(todos);
+            IndexViewData data = new IndexViewData();
+            data.ToDoList = _context.ToDos.ToList();
+            return View(data);
         }
 
         [HttpGet]
         public IActionResult Create()
         {
-            return View();
+            return View(new ToDoViewData());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(ToDo todo)
+        public IActionResult Create(ToDoViewData todos)
         {
-            if (!ModelState.IsValid) return View(todo);
-            _context.ToDos.Add(todo);
+            if (!ModelState.IsValid) return View(todos);
+
+            var newData = new ToDo
+            {
+                Title = todos.Title,
+                Description = todos.Description,
+            };
+
+            _context.ToDos.Add(newData);
             _context.SaveChanges();
             return RedirectToAction(nameof(Index));
         }
