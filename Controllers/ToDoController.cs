@@ -1,96 +1,66 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Numerics;
+using System.Reflection;
 using ToDoList.Models;
+using ToDoList.Services;
 using ToDoList.ViewModel;
 
 namespace ToDoList.Controllers
 {
     public class ToDoController : Controller
     {
-        private readonly DataContext _context;
-        public ToDoViewData dt = new ToDoViewData();
+        private readonly ToDoService _service;
 
-        public ToDoController(DataContext context)
-        {
-            _context = context;
-        }
+        public ToDoController(ToDoService service) { _service = service; }
 
         [HttpGet]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            IndexViewData data = new IndexViewData();
-            data.ToDoList = _context.ToDos.ToList();
-            return View(data);
+            try
+            {
+                var todos = await _service.GetAll();
+                return View(todos);
+            }
+            catch (HttpRequestException ex)
+            {
+                ViewBag.Error = "No se pudo conectar con la API: " + ex.Message;
+                return View(new List<ToDo>());
+            }
         }
 
         [HttpGet]
         public IActionResult Create()
         {
-            return View(new ToDoViewData());
+            return View();
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Create(ToDoViewData todos)
+        [AutoValidateAntiforgeryToken]
+        public async Task<IActionResult> Create(ToDoViewData todo)
         {
-            if (!ModelState.IsValid) return View(todos);
-
-            var newData = new ToDo
+            if (!ModelState.IsValid) { return View(todo); }
+            try
             {
-                Title = todos.Title,
-                Description = todos.Description,
-            };
-
-            _context.ToDos.Add(newData);
-            _context.SaveChanges();
-            return RedirectToAction(nameof(Index));
+                await _service.Create(todo);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (HttpRequestException ex) {
+                ModelState.AddModelError(string.Empty, "Error al Crear la tarea" + ex.Message);
+                return View(todo);
+            }
         }
 
         [HttpGet]
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Delete() 
         {
-            var todo = _context.ToDos.Find(id);
-            if (todo == null) return NotFound();
-            return View(todo);
+            return View();
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(ToDo todo)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (!ModelState.IsValid) return View(todo);
-            _context.ToDos.Update(todo);
-            _context.SaveChanges();
-            return RedirectToAction(nameof(Index));
-        }
-
-        [HttpGet]
-        public IActionResult Delete(int? id)
-        {
-            var todo = _context.ToDos.Find(id);
-            if (todo == null) return NotFound();
-            return View(todo);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Delete(int id)
-        {
-            var todo = _context.ToDos.Find(id);
-            _context.ToDos.Remove(todo);
-            _context.SaveChanges();
-            return RedirectToAction(nameof(Index));
-        }
-
-        [HttpGet]
-        public IActionResult Completed(int id)
-        {
-            var todos = _context.ToDos.Find(id);
-            if (todos == null) return NotFound();
-            if (!todos.IsCompleted) todos.IsCompleted = true;
-            else todos.IsCompleted = false;
-                _context.SaveChanges();
+            await _service.Delete(id);
             return RedirectToAction(nameof(Index));
         }
     }

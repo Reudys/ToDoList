@@ -1,12 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using ToDoList.Models;
+using ToDoList.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddDbContext<DataContext>(options =>
-    options.UseSqlServer("name=DefaultConnection"));
+
+builder.Services.AddHttpClient("ToDoAPI", client =>
+    client.BaseAddress = new Uri("https://localhost:7038/"));
+
+builder.Services.AddScoped<ToDoService>();
 
 var app = builder.Build();
 

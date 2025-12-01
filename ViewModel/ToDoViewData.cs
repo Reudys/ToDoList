@@ -19,5 +19,7 @@ namespace ToDoList.ViewModel
         [MaxLength(500, ErrorMessage = "La descripcion es demaciado larga")]
         [Display(Name = "Descripción")]
         public string Description { get; set; }
+
+        public bool IsCompleted { get; set; }
     }
 }
